@@ -35,8 +35,8 @@ licor_2015 <- bind_rows(april_licor, june_licor, august_licor)
   
 
 # plotting ----------------------------------------------------------------
-install.packages("ggplot")
-library(ggplot)
+install.packages("ggplot2")
+library(ggplot2)
 ggplot() + geom_point(data = licor_2015, aes(x=variety, y=Photo, color=month))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #simple plots of photosynthesis by variety
@@ -98,7 +98,7 @@ head(licor_2015)
 licor_clean <- licor_2015 %>% 
   mutate(unique = (paste(row_plant, month, day, sep="_"))) %>% 
   #filter(!unique == "44.2_8") %>% 
-  #mutate(unique = as.factor(unique)) %>% 
+  mutate(unique = as.factor(unique)) %>% 
   #select(month, Photo, Ci, Tleaf, PARi) %>% 
   as.data.frame()
 
@@ -155,16 +155,43 @@ tidy(f)
 library(tidyverse)
 library(dplyr)
 
-water_use <- licor_clean %>% 
-  transform(licor_clean, Obs = as.numeric(Obs)) %>% 
-  inner_join(licor_2015, wue, by = "VARIETY")
+ 
 
+#combine water use data with photosynthesis data, the inner_join isn't working 
+water_use <- licor_clean %>% 
+  transform(licor_clean, Obs = as.numeric(Obs)) 
+  #inner_join(wateruse, licor_clean, by = "variety")
+
+#export data table
+
+photo_filter <- licor_clean %>% 
+  filter(Obs == 3:9)
+
+glimpse(photo_filter)
+
+install.packages("openxlsx")
+library(openxlsx)
+
+write.csv(photo_filter, 'photo_filter.csv')
+
+head(water_use)
   
   #filter(Obs == "1","2","3")
 
 #glimpse(licor_clean)
 
 # PCA with leaf potential and stem potential
+water_use_efficiency <- read_csv("~/beth_data/water_use_efficiency.csv")
+wateruse <- water_use_efficiency %>% 
+  filter(!leaf_potential_avg == "NA", !stem_potential_avg == "NA") %>% 
+  filter(!is.na(photo))
+
+pca.1 <- prcomp(wateruse[,2:3,17], scale = T )
+summary(pca.1)
+plot(pca.1)
+plot(pca.1$x[,2], pca.1$x[,3]) %>%  
+
+
 
 # PCA with SLA -> dry weight/area
 

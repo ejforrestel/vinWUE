@@ -154,7 +154,10 @@ tidy(f)
 #then average
 library(tidyverse)
 library(dplyr)
-
+#plots without using PCA
+ggplot(wateruse, aes(x = wue_avg , y = photo, color = variety)) +
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
  
 
 #combine water use data with photosynthesis data, the inner_join isn't working 
@@ -167,27 +170,18 @@ water_use <- licor_clean %>%
 photo_filter <- licor_clean %>% 
   filter(Obs == 3:9)
 
-glimpse(photo_filter)
-
-install.packages("openxlsx")
-library(openxlsx)
-
-write.csv(photo_filter, 'photo_filter.csv')
-
-head(water_use)
-  
-  #filter(Obs == "1","2","3")
-
-#glimpse(licor_clean)
 
 # PCA with leaf potential and stem potential
 water_use_efficiency <- read_csv("~/beth_data/water_use_efficiency.csv")
 wateruse <- water_use_efficiency %>% 
   filter(!leaf_potential_avg == "NA", !stem_potential_avg == "NA") %>% 
-  filter(!is.na(photo))
+  filter(!is.na(photo)) %>% 
+  mutate(sla = leaf_weight_1_avg/)
 
 pca.1 <- prcomp(wateruse[,2:3,17], scale = T )
+biplot(pca.1)
 summary(pca.1)
+
 plot(pca.1)
 plot(pca.1$x[,2], pca.1$x[,3]) %>%  
 
@@ -197,8 +191,8 @@ plot(pca.1$x[,2], pca.1$x[,3]) %>%
 
 
 # Leaf area by variety (PCA with function prcomp)
+pca.2 <-prcomp(wateruse[])
 
-pca1 = prcomp(data = water_use, subset(Photo), scale. = TRUE)
 
 
 library(ggplot2)

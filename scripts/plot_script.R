@@ -155,9 +155,14 @@ tidy(f)
 library(tidyverse)
 library(dplyr)
 #plots without using PCA
-ggplot(wateruse, aes(x = wue_avg , y = photo, color = variety)) +
+ggplot(wateruse, aes(x = wue_avg , y = photo_avg, color = variety)) +
   geom_point()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(photo_filter, aes(x=variety, y = Photo))+
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_wrap(~month)
  
 
 #combine water use data with photosynthesis data, the inner_join isn't working 
@@ -168,22 +173,28 @@ water_use <- licor_clean %>%
 #export data table
 
 photo_filter <- licor_clean %>% 
-  filter(Obs == 3:9)
+  filter(Obs == 3:16)
 
 
 # PCA with leaf potential and stem potential
-water_use_efficiency <- read_csv("~/beth_data/water_use_efficiency.csv")
+intrinsic_water_use <- photo_filter %>% 
+  (group_by(variety)) %>% 
+  mean(photo_filter$Photo)
+  
+
+water_use_efficiency <- read_csv("data/water_use_efficiency.csv")
 wateruse <- water_use_efficiency %>% 
   filter(!leaf_potential_avg == "NA", !stem_potential_avg == "NA") %>% 
-  filter(!is.na(photo)) %>% 
-  mutate(sla = leaf_weight_1_avg/)
+  filter(!is.na(photo_avg)) %>% 
+  mutate(sla = leaf_weight_1_avg/Leaf_area_1_avg) %>% 
+  filter(!is.na(sla))
 
-pca.1 <- prcomp(wateruse[,2:3,17], scale = T )
+
+pca.1 <- prcomp(wateruse[2:4,8:9])
 biplot(pca.1)
 summary(pca.1)
 
 plot(pca.1)
-plot(pca.1$x[,2], pca.1$x[,3]) %>%  
 
 
 

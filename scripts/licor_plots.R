@@ -7,9 +7,10 @@ library(dplyr)
 april_licor <- read_csv("data/april_licor.csv")
 june_licor <-read_csv("data/june_licor.csv")
 august_licor <- read_csv("data/august_licor.csv")
-wue_raw <- read.csv("~/beth_data/WUE_monitor_vars_RMI_April2015.csv")
-water_use_efficiency <- read_csv("data/water_use_efficiency.csv")
-
+water_use_april <- read.csv("~/beth_data/WUE_monitor_vars_RMI_April2015.csv")
+#water_use_efficiency <- read_csv("data/water_use_efficiency.csv")
+water_use_june <- read_csv("data/WUE_monitor_vars_RMI_June2015.csv")
+water_use_august <- read.csv("data/August2015_RMI_data_wue.csv")
 
 # merging data ------------------------------------------------------------
 #rename columns lower case
@@ -87,11 +88,33 @@ licor_2015 %>%
 
 #water use efficiency plots 
 
-wateruse_april <- water_use_efficiency %>% 
-  filter(!leaf_potential_avg == "NA", !stem_potential_avg == "NA") %>% 
-  filter(!is.na(photo_avg)) %>% 
-  mutate(sla = leaf_weight_1_avg/Leaf_area_1_avg) %>% 
-  filter(!is.na(sla))
+water_use_apr <- water_use_april %>% 
+  as.numeric(Leaf_potential, Stem_potential, leaf_weight1_mg, Leaf_area1) %>% 
+  mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
+  mutate(intrinsic_wue = A/g) %>% 
+  filter(!is.na(sla)) %>% 
+  summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
+            mean_stem_potential = mean(Stem_potential))
+
+
+water_use_aug <- water_use_august %>% 
+  group_by(VARIETY) %>%
+  filter(!Leaf_potential == "NA", !Stem_potential == "NA") %>% 
+  mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
+  mutate(intrinsic_wue = A/g) %>% 
+  filter(!is.na(sla)) %>% 
+  summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
+            mean_stem_potential = mean(Stem_potential))
+
+#needs to add variety to ID, maybe with a join?
+water_use_jun <- water_use_june %>% 
+  mutate(row_plant = paste(ROW, PLANT, sep = "_")) %>%
+  filter(!Leaf_potential == "NA", !Stem_potential == "NA") %>% 
+  mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
+  filter(!is.na(sla)) %>% 
+  summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
+            mean_stem_potential = mean(Stem_potential))
+
 
 ggplot(wateruse_april, aes(x = wue_avg , y = photo_avg, color = variety)) +
   geom_point()+
@@ -109,15 +132,19 @@ ggplot(wateruse_april, aes(x = wue, y = photo_avg, color = wue))+
 
 # PCA ---------------------------------------------------------------------
 #April 
-pca.1 <- prcomp(wateruse_april[,c(2:4,8,9)], scale = T)
+pca.1 <- prcomp(water_use_apr[,c(2:4,8,9)], scale = T)
 biplot(pca.1)
 summary(pca.1)
 
 plot(pca.1)
 
-#July
+#all months
 
-#August
+pca.2 <- prcomp([,c(2:4,8,9)], scale = T)
+biplot(pca.1)
+summary(pca.1)
+
+plot(pca.1)
 
 
 # climate data ------------------------------------------------------------

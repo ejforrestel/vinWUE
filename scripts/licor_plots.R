@@ -37,7 +37,9 @@ august_licor$row_plant <- as.character(august_licor$row_plant)
 
 licor_2015 <- bind_rows(april_licor, june_licor, august_licor) %>% 
   as.data.frame()
-
+  
+licor_2015 %>% 
+  mutate(sla = (Photo/Cond))
 
 
 # plotting data with ggplot2 ----------------------------------------------
@@ -76,13 +78,13 @@ ggplot() + geom_point (data = wue, aes(x=VARIETY, y=(Leaf_potential), color=VARI
 
 #water use efficiency plots 
 
-wateruse <- water_use_efficiency %>% 
+wateruse_april <- water_use_efficiency %>% 
   filter(!leaf_potential_avg == "NA", !stem_potential_avg == "NA") %>% 
   filter(!is.na(photo_avg)) %>% 
   mutate(sla = leaf_weight_1_avg/Leaf_area_1_avg) %>% 
   filter(!is.na(sla))
 
-ggplot(wateruse, aes(x = wue_avg , y = photo_avg, color = variety)) +
+ggplot(wateruse_april, aes(x = wue_avg , y = photo_avg, color = variety)) +
   geom_point()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -91,17 +93,30 @@ ggplot(licor_2015, aes(x = variety, y = Photo, color = variety))+
   facet_wrap("month")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
   
-ggplot(wateruse, aes(x = variety, y = sla, color = sla))+
+ggplot(wateruse_april, aes(x = sla, y = photo_avg, color = sla))+
   geom_point()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 # PCA ---------------------------------------------------------------------
-
-pca.1 <- prcomp(wateruse[2:4,8:9])
+#April 
+pca.1 <- prcomp(wateruse_april[,c(2:4,8,9)], scale = T)
 biplot(pca.1)
 summary(pca.1)
 
 plot(pca.1)
+
+#July
+
+#August
+
+
+# climate data ------------------------------------------------------------
+
+#will use other climate data later on 
+
+climate <- read.csv("data/2013_15TminTmax_RMI.csv")
+library(lubridate)
+paste(climate$year, climate$month, climate$day, sep = "-")
 
 

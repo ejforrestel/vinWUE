@@ -38,15 +38,22 @@ august_licor$row_plant <- as.character(august_licor$row_plant)
 licor_2015 <- bind_rows(april_licor, june_licor, august_licor) %>% 
   as.data.frame()
   
-licor_2015_sla <- licor_2015 %>% 
-  mutate(sla = (Photo/Cond))
+licor_2015_wue <- licor_2015 %>% 
+  mutate(wue = (Photo/Cond))
 
-head(licor_2015_sla)
+head(licor_2015_wue)
 
+variety_traits <- licor_2015_wue %>%
+  group_by(variety, month) %>%
+  summarize(mean_photo = mean(Photo, na.rm = TRUE), mean_wue = mean(wue, na.rm = TRUE))
+  
 
 # plotting data with ggplot2 ----------------------------------------------
+ggplot()+geom_point(data=variety_traits, aes(x=month, y = mean_wue, color = variety))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-ggplot() + geom_point(data = licor_2015, aes(x=variety, y=Photo, color=month))+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ggplot() + geom_point(data = licor_2015, aes(x=variety, y=Photo, color=month))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #simple plots of photosynthesis by variety
 
@@ -76,7 +83,7 @@ licor_2015 %>%
   ylab("Photosynthesis") +
   ggtitle("Figure 1. Test")
 
-ggplot() + geom_point (data = wue, aes(x=VARIETY, y=(Leaf_potential), color=VARIETY))
+#ggplot() + geom_point (data = wue, aes(x=VARIETY, y=(Leaf_potential), color=VARIETY))
 
 #water use efficiency plots 
 
@@ -95,7 +102,7 @@ ggplot(licor_2015, aes(x = variety, y = Photo, color = variety))+
   facet_wrap("month")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
   
-ggplot(wateruse_april, aes(x = sla, y = photo_avg, color = sla))+
+ggplot(wateruse_april, aes(x = wue, y = photo_avg, color = wue))+
   geom_point()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 

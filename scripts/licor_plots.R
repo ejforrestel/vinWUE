@@ -38,8 +38,10 @@ august_licor$row_plant <- as.character(august_licor$row_plant)
 licor_2015 <- bind_rows(april_licor, june_licor, august_licor) %>% 
   as.data.frame()
   
-licor_2015 %>% 
+licor_2015_sla <- licor_2015 %>% 
   mutate(sla = (Photo/Cond))
+
+head(licor_2015_sla)
 
 
 # plotting data with ggplot2 ----------------------------------------------

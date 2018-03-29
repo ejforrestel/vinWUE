@@ -87,64 +87,101 @@ licor_2015 %>%
 #ggplot() + geom_point (data = wue, aes(x=VARIETY, y=(Leaf_potential), color=VARIETY))
 
 #water use efficiency plots 
+#convert to numeric April
+water_use_april$Leaf_potential <- as.numeric(water_use_april$Leaf_potential)
+water_use_april$A <- as.numeric(water_use_april$A)
+water_use_april$g <- as.numeric(water_use_april$g)
+water_use_april$Leaf_potential <- as.numeric(water_use_april$Leaf_potential)
+water_use_april$Stem_potential <- as.numeric(water_use_april$Stem_potential)
+water_use_april$leaf_weight1_mg <- as.numeric(water_use_april$leaf_weight1_mg)
+#water_use_april$Leaf_weight2_mg <- as.numeric(water_use_april$Leaf_weight2_mg)
+water_use_april$Leaf_area1 <- as.numeric(water_use_april$Leaf_area1)
+#convert to numeric August
+water_use_august$Leaf_potential <- as.numeric(water_use_august$Leaf_potential)
+water_use_august$A <- as.numeric(water_use_august$A)
+water_use_august$g <- as.numeric(water_use_august$g)
+water_use_august$Leaf_potential <- as.numeric(water_use_august$Leaf_potential)
+water_use_august$Stem_potential <- as.numeric(water_use_august$Stem_potential)
+water_use_august$leaf_weight1_mg <- as.numeric(water_use_august$leaf_weight1_mg)
+#water_use_august$Leaf_weight2_mg <- as.numeric(water_use_august$Leaf_weight2_mg)
+water_use_august$Leaf_area1 <- as.numeric(water_use_august$Leaf_area1)
 
-water_use_apr <- water_use_april %>% 
-  as.numeric(Leaf_potential, Stem_potential, leaf_weight1_mg, Leaf_area1) %>% 
+#add varieties to August  
+water_use_variety <- water_use_april %>% 
+  mutate(row_plant = (paste(ROW, PLANT, sep="_"))) %>% 
+  select(VARIETY, row_plant) %>% 
+  filter(!VARIETY == "")
+
+water_use_august_mutate <- water_use_august %>% 
+  select(ROW, PLANT, Leaf_potential, Stem_potential) %>% 
+  mutate(row_plant = (paste(ROW, PLANT, sep= "_"))) 
+
+wue_august <- full_join(water_use_august_mutate, water_use_variety, by = "row_plant")
+
+#..... June
+
+water_use_june_mutate <- water_use_june %>% 
+  select(ROW, PLANT, Leaf_potential, Stem_potential) %>% 
+  mutate(row_plant = (paste(ROW, PLANT, sep= "_"))) 
+
+wue_june <- full_join(water_use_june_mutate, water_use_variety, by = "row_plant")
+
+
+#water use for April is fine does not need a join with variety
+
+water_use_apr <- water_use_april %>%
+  filter(!Leaf_potential=="1") %>% 
+  filter(!Leaf_area1=="1") %>% 
+  filter(!leaf_weight1_mg =="1") %>% 
   mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
   mutate(intrinsic_wue = A/g) %>% 
-  filter(!is.na(sla)) %>% 
-  summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
-            mean_stem_potential = mean(Stem_potential))
-
-
-water_use_aug <- water_use_august %>% 
-  group_by(VARIETY) %>%
-  filter(!Leaf_potential == "NA", !Stem_potential == "NA") %>% 
-  mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
-  mutate(intrinsic_wue = A/g) %>% 
-  filter(!is.na(sla)) %>% 
-  summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
-            mean_stem_potential = mean(Stem_potential))
-
-#needs to add variety to ID, maybe with a join?
-water_use_jun <- water_use_june %>% 
-  mutate(row_plant = paste(ROW, PLANT, sep = "_")) %>%
-  filter(!Leaf_potential == "NA", !Stem_potential == "NA") %>% 
-  mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
-  filter(!is.na(sla)) %>% 
-  summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
-            mean_stem_potential = mean(Stem_potential))
-
-
-ggplot(wateruse_april, aes(x = wue_avg , y = photo_avg, color = variety)) +
-  geom_point()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-ggplot(licor_2015, aes(x = variety, y = Photo, color = variety))+
-  geom_point()+
-  facet_wrap("month")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  select(VARIETY, Leaf_potential, Stem_potential, intrinsic_wue, sla) %>% 
+  filter(!VARIETY == "")
   
-ggplot(wateruse_april, aes(x = wue, y = photo_avg, color = wue))+
-  geom_point()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  #summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
+            #mean_stem_potential = mean(Stem_potential), mean_wue = mean(intrinsic_wue))
+
+
+  
+
+
 
 
 # PCA ---------------------------------------------------------------------
 #April 
-pca.1 <- prcomp(water_use_apr[,c(2:4,8,9)], scale = T)
+pca.1 <- prcomp(water_use_apr[,2:5], scale = T)
 biplot(pca.1)
 summary(pca.1)
 
 plot(pca.1)
 
-#all months
+#June has weight but no area, only stem and leaf potential
 
-pca.2 <- prcomp([,c(2:4,8,9)], scale = T)
-biplot(pca.1)
-summary(pca.1)
 
-plot(pca.1)
+#August only has stem and leaf potential, still do PCA?
+
+pca.2 <- prcomp(wue_august[,3:4], scale = T)
+biplot(pca.2)
+summary(pca.2)
+
+plot(pca.2)
+
+ 
+
+
+# preliminary plots
+
+ggplot(water_use_apr, aes(x = intrinsic_wue, y = sla, color = VARIETY)) +
+  geom_point()
+
+ggplot(licor_2015, aes(x = variety, y = Photo, color = variety ))+
+  geom_point()+
+  facet_wrap("month")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(wue_august, aes(x = Leaf_potential, y = Stem_potential, color = VARIETY))+
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 # climate data ------------------------------------------------------------

@@ -1,4 +1,9 @@
 #PCA with licor and water use efficiency data
+###EJF notes to do: add in stomtal traits to data and check for April data; look at relationships between leaf potential and stomatal conductance -- look for isohydric and anisohydric symdromes; double check some of trait values -- SLA is weird sometimes, not always issue with numeric conversion
+
+
+
+
 
 library(tidyverse)
 library(ggplot2)
@@ -85,6 +90,9 @@ licor_2015 %>%
   ggtitle("Figure 1. Test")
 
 #ggplot() + geom_point (data = wue, aes(x=VARIETY, y=(Leaf_potential), color=VARIETY))
+
+###EJF - double check numeric conversions, weird things happening with data - check why it is reading in as non-numeric
+
 
 #water use efficiency plots 
 #convert to numeric April

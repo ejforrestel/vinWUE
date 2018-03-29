@@ -69,6 +69,13 @@ ggplot() + geom_point (data = april_licor, aes(x=variety, y=(Photo), color=varie
   ylab("Photosynthesis") +
   ggtitle("April Photosynthesis by Variety")
 
+ggplot() + geom_boxplot(data = april_licor, aes(x=variety, y=(Photo), color=variety))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  xlab("Variety") +
+  ylab("Photosynthesis") +
+  ggtitle("April Photosynthesis by Variety")
+
+
 ggplot() + geom_point (data = june_licor, aes(x=variety, y=(Photo), color=variety)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Variety") +

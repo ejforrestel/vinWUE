@@ -2,9 +2,6 @@
 ###EJF notes to do: add in stomtal traits to data and check for April data; look at relationships between leaf potential and stomatal conductance -- look for isohydric and anisohydric symdromes; double check some of trait values -- SLA is weird sometimes, not always issue with numeric conversion
 
 
-
-
-
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -12,7 +9,7 @@ library(dplyr)
 april_licor <- read_csv("data/april_licor.csv")
 june_licor <-read_csv("data/june_licor.csv")
 august_licor <- read_csv("data/august_licor.csv")
-water_use_april <- read.csv("~/beth_data/WUE_monitor_vars_RMI_April2015.csv")
+water_use_april <- read_csv("data/WUE_monitor_vars_RMI_April2015.csv")
 #water_use_efficiency <- read_csv("data/water_use_efficiency.csv")
 water_use_june <- read_csv("data/WUE_monitor_vars_RMI_June2015.csv")
 water_use_august <- read.csv("data/August2015_RMI_data_wue.csv")
@@ -99,27 +96,12 @@ licor_2015 %>%
 #ggplot() + geom_point (data = wue, aes(x=VARIETY, y=(Leaf_potential), color=VARIETY))
 
 ###EJF - double check numeric conversions, weird things happening with data - check why it is reading in as non-numeric
-
+#MEC I think it reads in as character because some of the data is num,num and num/note because there were 2 observations in one box
+#I can average these boxes and re run to see if it comes in as numeric, because otherwise it shows up as NA later and we lose these points
+#averaging the boxes worked, data comes in as numeric 
 
 #water use efficiency plots 
-#convert to numeric April
-water_use_april$Leaf_potential <- as.numeric(water_use_april$Leaf_potential)
-water_use_april$A <- as.numeric(water_use_april$A)
-water_use_april$g <- as.numeric(water_use_april$g)
-water_use_april$Leaf_potential <- as.numeric(water_use_april$Leaf_potential)
-water_use_april$Stem_potential <- as.numeric(water_use_april$Stem_potential)
-water_use_april$leaf_weight1_mg <- as.numeric(water_use_april$leaf_weight1_mg)
-#water_use_april$Leaf_weight2_mg <- as.numeric(water_use_april$Leaf_weight2_mg)
-water_use_april$Leaf_area1 <- as.numeric(water_use_april$Leaf_area1)
-#convert to numeric August
-water_use_august$Leaf_potential <- as.numeric(water_use_august$Leaf_potential)
-water_use_august$A <- as.numeric(water_use_august$A)
-water_use_august$g <- as.numeric(water_use_august$g)
-water_use_august$Leaf_potential <- as.numeric(water_use_august$Leaf_potential)
-water_use_august$Stem_potential <- as.numeric(water_use_august$Stem_potential)
-water_use_august$leaf_weight1_mg <- as.numeric(water_use_august$leaf_weight1_mg)
-#water_use_august$Leaf_weight2_mg <- as.numeric(water_use_august$Leaf_weight2_mg)
-water_use_august$Leaf_area1 <- as.numeric(water_use_august$Leaf_area1)
+
 
 #add varieties to August  
 water_use_variety <- water_use_april %>% 

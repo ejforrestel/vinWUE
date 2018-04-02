@@ -10,9 +10,11 @@ april_licor <- read_csv("data/april_licor.csv")
 june_licor <-read_csv("data/june_licor.csv")
 august_licor <- read_csv("data/august_licor.csv")
 water_use_april <- read_csv("data/WUE_monitor_vars_RMI_April2015.csv")
-#water_use_efficiency <- read_csv("data/water_use_efficiency.csv")
 water_use_june <- read_csv("data/WUE_monitor_vars_RMI_June2015.csv")
 water_use_august <- read.csv("data/August2015_RMI_data_wue.csv")
+vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv")
+vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv")
+vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv")
 
 # merging data ------------------------------------------------------------
 #rename columns lower case
@@ -113,7 +115,9 @@ water_use_august_mutate <- water_use_august %>%
   select(ROW, PLANT, Leaf_potential, Stem_potential) %>% 
   mutate(row_plant = (paste(ROW, PLANT, sep= "_"))) 
 
-wue_august <- full_join(water_use_august_mutate, water_use_variety, by = "row_plant")
+wue_august <- full_join(water_use_august_mutate, water_use_variety, by = "row_plant") %>% 
+  filter(!Leaf_potential == "NA") %>% 
+  filter(!Stem_potential == "NA")
 
 #..... June
 
@@ -121,7 +125,9 @@ water_use_june_mutate <- water_use_june %>%
   select(ROW, PLANT, Leaf_potential, Stem_potential) %>% 
   mutate(row_plant = (paste(ROW, PLANT, sep= "_"))) 
 
-wue_june <- full_join(water_use_june_mutate, water_use_variety, by = "row_plant")
+wue_june <- full_join(water_use_june_mutate, water_use_variety, by = "row_plant") %>% 
+  filter(!Leaf_potential == "NA") %>% 
+  filter(!Stem_potential == "NA")
 
 
 #water use for April is fine does not need a join with variety
@@ -133,16 +139,11 @@ water_use_apr <- water_use_april %>%
   mutate(sla = leaf_weight1_mg/Leaf_area1) %>% 
   mutate(intrinsic_wue = A/g) %>% 
   select(VARIETY, Leaf_potential, Stem_potential, intrinsic_wue, sla) %>% 
-  filter(!VARIETY == "")
+  filter(!VARIETY == "") %>% 
+  filter(!intrinsic_wue == "NA")
   
   #summarize(mean_sla = mean(sla), mean_leaf_potential = mean(Leaf_potential),
             #mean_stem_potential = mean(Stem_potential), mean_wue = mean(intrinsic_wue))
-
-
-  
-
-
-
 
 # PCA ---------------------------------------------------------------------
 #April 
@@ -153,19 +154,22 @@ summary(pca.1)
 plot(pca.1)
 
 #June has weight but no area, only stem and leaf potential
-
-
-#August only has stem and leaf potential, still do PCA?
-
-pca.2 <- prcomp(wue_august[,3:4], scale = T)
+pca.2 <- prcomp(wue_june[,3:4], scale = T)
 biplot(pca.2)
 summary(pca.2)
 
 plot(pca.2)
 
+
+#August only has stem and leaf potential, still do PCA?
+
+pca.3 <- prcomp(wue_august[,3:4], scale = T)
+biplot(pca.3)
+summary(pca.3)
+
+plot(pca.3)
+
  
-
-
 # preliminary plots
 
 ggplot(water_use_apr, aes(x = intrinsic_wue, y = sla, color = VARIETY)) +

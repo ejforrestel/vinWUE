@@ -193,4 +193,6 @@ climate <- read.csv("data/2013_15TminTmax_RMI.csv")
 library(lubridate)
 paste(climate$year, climate$month, climate$day, sep = "-")
 
+install.packages("wesanderson")
+
 

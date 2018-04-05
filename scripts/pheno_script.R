@@ -2,16 +2,23 @@
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+#library(wesanderson)
 
 Pheno2015 <- read_csv("data/Phenodata/Pheno2015.csv")
 PhenoVarRMI <- read_csv("data/Phenodata/PhenoVarRMI.csv")
 vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv")
 vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv")
 vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv")
+#wes_palette("Cavalcanti")
+#pal <- wes_palette("Cavalcanti", 7, type = "continuous")
+
+# all data sets need to be summarized by variety before graphs are made 
 
 #plot phenology with water use traits
 pheno_wue_combined <- licor_2015_wue %>% 
-  select(month, variety, Photo, Cond, wue) 
+  select(month, variety, Photo, Cond, wue) %>% 
+  group_by(variety) %>%
+  summarize(mean_photo = mean(Photo, na.rm = TRUE))
 
 Pheno_bb <- full_join(pheno_wue_combined, Pheno2015, by = "variety") %>% 
   filter(event == "bb")
@@ -98,6 +105,14 @@ ggplot() + geom_point(data = pheno_joined3, aes(x = event, y = mean_wue, color =
   ggtitle("Regional Water Use")
 
 
+#getting closer
+ggplot() + geom_line(data = pheno_joined3, aes(x = doy.2015, y = mean_wue, color = region))+
+  #scale_color_manual(values = pal)+
+  xlab("Phenological Event") +
+  ylab("Intrinsic Water Use Efficiency") +
+  ggtitle("Regional Water Use")
+
+
 ggplot() + geom_boxplot(data = pheno_joined3, aes(x=variety, y= mean_photo, color=region))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Variety") +
@@ -112,11 +127,10 @@ ggplot(data = pheno_joined3, aes(x=region, y= mean_photo)) + geom_boxplot(alpha 
   ylab("Photosynthesis") +
   ggtitle("Photosynthesis by Region")
 
-ggplot(data = licor_2015_wue, aes(x = variety, y = wue)) +
-  geom_point()
 
 #this one is interesting, starting to cluster by region
 ggplot() + geom_point(data = pheno_joined3, aes(x = RMI_bb, y = mean_wue, color = region))
+
 
 #looking at photo continuously
 ggplot(data = pheno_joined3, aes(x = RMI_bb, y = mean_wue, group = region, color = variety)) +
@@ -135,4 +149,44 @@ ggplot(data = pheno_joined3, aes(x = month, y = mean_wue, group = region, color 
 ggplot(data = pheno_joined3, aes(x = RMI_flow, y = mean_wue, group = region, color = region)) +
   geom_point()
 
+#PCA with traits 
+mean_traits <- vitis_trait %>% 
+  mutate(mean_stom_length = (stom_length_1.1+stom_length_1.2+stom_length_1.3+stom_length_1.4+stom_length_1.5)/5) %>% 
+  mutate(mean_stom_number = (stom_number_1+stom_number_2)/2) %>% 
+  select(Variety_name, C13, C:N, mean_stom_length, mean_stom_number) %>% 
+  rename(variety = Variety_name)
 
+variety_traits <- variety_traits %>% 
+  select(variety, mean_photo, mean_wue)
+
+traits <- vitis_var_means %>% 
+  rename(variety = Varietal) %>% 
+  select(variety, C13,C, N, C.N, mean_stom, stom_den, SPI)
+
+traits_combined <- full_join(traits, variety_traits, by = "variety") %>% 
+  filter(!C13=="NA") %>% 
+  filter(!C=="NA") %>% 
+  filter(!N=="NA") %>% 
+  filter(!C.N=="NA") %>% 
+  filter(!mean_stom=="NA") %>% 
+  filter(!stom_den=="NA")
+
+  
+traits_combined2 <- aggregate(traits_combined[,2:10], list(traits_combined$variety), mean)
+  
+  #how to summarize by variety? group_by not working 
+
+pca.4 <- prcomp(traits_combined2[,(4:8)], scale = T)
+biplot(pca.4)
+summary(pca.4)
+
+#adding in mean_wue and mean_photo means losing some of the other data because of NAs so 
+#I did this in two steps
+
+traits_combined_b <- traits_combined %>% 
+  filter(!mean_photo == "NA") %>% 
+  filter(!mean_wue == "NA")
+
+pca.5 <- prcomp(traits_combined_b[,2:10], scale = T)
+biplot(pca.5)
+summary(pca.5)

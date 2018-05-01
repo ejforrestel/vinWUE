@@ -6,13 +6,57 @@ library(ggplot2)
 
 Pheno2015 <- read_csv("data/Phenodata/Pheno2015.csv")
 PhenoVarRMI <- read_csv("data/Phenodata/PhenoVarRMI.csv")
-vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv")
+vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv") #not there?
 vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv")
 vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv")
-#wes_palette("Cavalcanti")
-#pal <- wes_palette("Cavalcanti", 7, type = "continuous")
+
 
 # all data sets need to be summarized by variety before graphs are made 
+#PCA all traits
+vitis_var_means_select <- vitis_var_means %>% 
+  select(Varietal, C13, C.N, mean_stom, stom_den, SPI)
+
+pca.5 <- prcomp(vitis_var_means_select[,(2:6)], scale = T)
+biplot(pca.5)
+summary(pca.5)
+#add aesthetics
+
+#rank order the traits by month 
+
+
+# Combining
+vitis_traits_clean <- vitis_var_means_select %>% 
+  rename(variety = Varietal)
+
+Pheno2015$variety <- gsub(pattern = " ", replacement = "_",Pheno2015$variety)
+
+vitis_traits_combo <- full_join(vitis_traits_clean, Pheno2015, by = "variety")
+vitis_traits_combo <- full_join(vitis_traits_combo, region, by = "variety")
+
+vitis_traits_flo <- vitis_traits_combo %>% 
+  filter(event == "flo")
+
+vitis_traits_ver <- vitis_traits_combo %>% 
+  filter(event == "ver")
+
+#C13 by flowering
+ggplot(data = vitis_traits_flo, aes(x = doy.2015, y = C13, color = region))+geom_point()
+
+#C13 by veraison 
+ggplot(data = vitis_traits_ver, aes(x = doy.2015, y = C13, color = region))+geom_point()
+
+#WUE mean by variety by month 
+month.wue <- aggregate(x = licor_2015_wue, by = variety, FUN = mean)
+
+  
+
+#WUE by flowering 
+
+
+#WUE by veraison 
+
+
+
 
 #plot phenology with water use traits
 pheno_wue_combined <- licor_2015_wue %>% 
@@ -111,6 +155,8 @@ ggplot() + geom_line(data = pheno_joined3, aes(x = doy.2015, y = mean_wue, color
   xlab("Phenological Event") +
   ylab("Intrinsic Water Use Efficiency") +
   ggtitle("Regional Water Use")
+
+#aggregate before line plot
 
 
 ggplot() + geom_boxplot(data = pheno_joined3, aes(x=variety, y= mean_photo, color=region))+

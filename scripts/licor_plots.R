@@ -43,14 +43,17 @@ august_licor$row_plant <- as.character(august_licor$row_plant)
 licor_2015 <- bind_rows(april_licor, june_licor, august_licor) %>% 
   as.data.frame()
   
-licor_2015_wue <- licor_2015 %>% 
+licor_wue <- licor_2015 %>% 
   mutate(wue = (Photo/Cond))
 
-head(licor_2015_wue)
+head(licor_wue)
 
-variety_traits <- licor_2015_wue %>%
+v_wue <- licor_wue %>%
   group_by(variety, month) %>%
-  summarize(mean_photo = mean(Photo, na.rm = TRUE), mean_wue = mean(wue, na.rm = TRUE))
+  summarize(mean_photo = mean(Photo, na.rm = TRUE), 
+            mean_wue = mean(wue, na.rm = TRUE)) 
+
+
   
 
 # plotting data with ggplot2 ----------------------------------------------

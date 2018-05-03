@@ -2,35 +2,62 @@
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-#library(wesanderson)
 
 Pheno2015 <- read_csv("data/Phenodata/Pheno2015.csv")
 PhenoVarRMI <- read_csv("data/Phenodata/PhenoVarRMI.csv")
-vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv") #not there?
+vitis_ind_mean <- read_csv("data/viniferaTraitMeans/Vitis_ind_mean.csv")
 vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv")
 vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv")
 
+#tidy data for analysis
+vitis_var_means <- vitis_var_means %>% 
+  rename(variety = Varietal) 
+
+vitis_var_means <- subset(vitis_var_means, 
+                          select=c("variety", "C13", "C", "N", "C.N", "mean_stom", "stom_den", "SPI"))
+region <-  subset(PhenoVarRMI, select=c("variety", "region"))
+vitis_mean_reg <- full_join(vitis_var_means, region, by = "variety") %>% 
+  na.omit(T)
 
 # all data sets need to be summarized by variety before graphs are made 
-#PCA all traits
-vitis_var_means_select <- vitis_var_means %>% 
-  select(Varietal, C13, C.N, mean_stom, stom_den, SPI)
+#PCA all traits 
 
-pca.5 <- prcomp(vitis_var_means_select[,(2:6)], scale = T)
+pca.5 <- prcomp(vitis_var_means[,(2:8)], scale = T)
 biplot(pca.5)
 summary(pca.5)
 #add aesthetics
 
+library(ggfortify)
+df <- vitis_var_means[c(2,5,6,7,8)]
+autoplot(prcomp(df))
+autoplot(prcomp(df), data = vitis_var_means, colour = 'variety',
+         frame = TRUE, frame.type = 'norm')
+
+#interested in regional PCA
+df.2 <- vitis_mean_reg[c(2,5,6,7,8)]
+autoplot(prcomp(df.2))
+autoplot(prcomp(df.2), data = vitis_mean_reg, colour = 'region', 
+         frame = TRUE, frame.type = 'norm')
+#there must be a way to do the PCA with the variety points and then use region 
+#to cluster
+library(cluster)
+autoplot(clara(vitis_mean_reg[c(2,5,6,7,8)], 8), 
+         frame.type = 'norm', frame = TRUE)
+
+autoplot(clara(vitis_var_means[c(2,5,6,7,8)], 8), 
+         frame.type = 'norm', frame = TRUE, frame.colour = 'variety')
+
 #rank order the traits by month 
+
+cor(v_wue$mean_photo, v_wue$mean_wue, method = c("spearman"))
+
 
 
 # Combining
-vitis_traits_clean <- vitis_var_means_select %>% 
-  rename(variety = Varietal)
 
 Pheno2015$variety <- gsub(pattern = " ", replacement = "_",Pheno2015$variety)
 
-vitis_traits_combo <- full_join(vitis_traits_clean, Pheno2015, by = "variety")
+vitis_traits_combo <- full_join(vitis_var_means, Pheno2015, by = "variety")
 vitis_traits_combo <- full_join(vitis_traits_combo, region, by = "variety")
 
 vitis_traits_flo <- vitis_traits_combo %>% 
@@ -46,16 +73,32 @@ ggplot(data = vitis_traits_flo, aes(x = doy.2015, y = C13, color = region))+geom
 ggplot(data = vitis_traits_ver, aes(x = doy.2015, y = C13, color = region))+geom_point()
 
 #WUE mean by variety by month 
-month.wue <- aggregate(x = licor_2015_wue, by = variety, FUN = mean)
+ggplot(data = v_wue, 
+       aes(x = variety, y = mean_wue))+facet_wrap(~month)+
+       geom_point()
 
+ggplot(data = v_wue, 
+       aes(x = variety, y = mean_photo))+facet_wrap(~month)+
+  geom_point()
   
 
 #WUE by flowering 
 
+p_flo <- full_join(v_wue, Pheno2015, by = "variety") %>% na.omit(T) %>% 
+  filter(event == "flo" )
+
+ggplot(data = p_flo, 
+       aes(x = doy.2015, y = mean_wue, color = variety))+facet_wrap(~month)+
+  geom_point()
+
 
 #WUE by veraison 
+p_ver <- full_join(v_wue, Pheno2015, by = "variety") %>% na.omit(T) %>% 
+  filter(event == "ver" )
 
-
+ggplot(data = p_ver, 
+       aes(x = doy.2015, y = mean_wue, color = variety))+facet_wrap(~month)+
+  geom_point()
 
 
 #plot phenology with water use traits
@@ -78,7 +121,7 @@ ggplot()+ geom_point(data = Pheno_bb_region, aes(x=doy.2015, y = wue, color = re
   ylab("Intrinsic Water Use Efficiency") +
   ggtitle("Regional Water Use at Budburst")
 
-#wue at flowering
+#wue at flowering - something wrong with this, use plot from above code
 Pheno_flo <- full_join(pheno_wue_combined, Pheno2015, by = "variety") %>% 
   filter(event == "flo")
 
@@ -141,7 +184,7 @@ ggplot() + geom_point(data = pheno_joined3, aes(x = region, y = mean_wue, color 
 ggplot() + geom_point(data = pheno_joined3, aes(x = RMI_bb, y = mean_photo, color = region))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-#getting closer to the figure I think you want
+#Regional WUE
 ggplot() + geom_point(data = pheno_joined3, aes(x = event, y = mean_wue, color = region))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Phenological Event") +
@@ -149,7 +192,7 @@ ggplot() + geom_point(data = pheno_joined3, aes(x = event, y = mean_wue, color =
   ggtitle("Regional Water Use")
 
 
-#getting closer
+#intrinsic WUE regionally
 ggplot() + geom_line(data = pheno_joined3, aes(x = doy.2015, y = mean_wue, color = region))+
   #scale_color_manual(values = pal)+
   xlab("Phenological Event") +
@@ -157,8 +200,6 @@ ggplot() + geom_line(data = pheno_joined3, aes(x = doy.2015, y = mean_wue, color
   ggtitle("Regional Water Use")
 
 #aggregate before line plot
-
-
 ggplot() + geom_boxplot(data = pheno_joined3, aes(x=variety, y= mean_photo, color=region))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Variety") +

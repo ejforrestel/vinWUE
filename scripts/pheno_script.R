@@ -17,16 +17,16 @@ autoplot(prcomp(df))
 autoplot(prcomp(df), data = vitis_var_means, colour = 'region',
          frame = TRUE, frame.type = 'norm')
 
-#interested in regional PCA
-df.2 <- vitis_mean_reg[c(2,5,6,7,8)]
+#interested in regional PCA but can't get the points from variety with ellipses or coloring by region
+df.2 <- vitis_var_means[c(2,5,6,7,8)]
 autoplot(prcomp(df.2))
-autoplot(prcomp(df.2), data = vitis_mean_reg, colour = 'region', 
+autoplot(prcomp(df.2), data = vitis_var_means, colour = 'variety', 
          frame = TRUE, frame.type = 'norm')
 
 #there must be a way to do the PCA with the variety points and then use region 
 #to cluster
 library(cluster)
-autoplot(clara(vitis_mean_reg[c(2,5,6,7,8)], 8), 
+autoplot(clara(vitis_var_means[c(2,5,6,7,8)], 8), 
          frame.type = 'norm', frame = TRUE)
 
 #clusters look a little distinct, but how do we dictate what the clusters are?
@@ -45,46 +45,44 @@ ggplot(data = _______, aes(x = doy.2015, y = C13, color = region))+geom_point()
 ggplot(data = ________, aes(x = doy.2015, y = C13, color = region))+geom_point()
 
 #WUE mean by variety by month 
-ggplot(data = v_wue, 
-       aes(x = variety, y = mean_wue, color = variety))+facet_wrap(~month)+
+ggplot(data = v_wue, aes(x = variety, y = mean_wue, color = variety))+facet_wrap(~month)+
        geom_point()
 
 ggplot(data = v_wue, 
-       aes(x = variety, y = mean_photo, color = variety))+facet_wrap(~month)+
-  geom_point()
+       aes(x = variety, y = mean_photo, color = variety))+facet_wrap(~month)+ geom_point()
 
 
 #WUE by event
-
-
-
-
-#wue at bb by variety 
-ggplot()+ geom_point(data = _________, aes(x=doy.2015, y = wue, color = region))+
-  xlab("Budburst 2015") +
-  ylab("Intrinsic Water Use Efficiency") +
-  ggtitle("Regional Water Use at Budburst")
-
-
-ggplot()+ geom_point(data = ___________, aes(x=doy.2015, y = wue, color = region))+
+#flowering
+ggplot()+ geom_point(data = v_flo, aes(x=doy.2015, y = mean_wue, color = variety))+
   xlab("Flowering 2015") +
   ylab("Intrinsic Water Use Efficiency") +
   ggtitle("Regional Water Use at Flowering")
 
-#wue at verasion 
 
-ggplot()+ geom_point(data = _______, aes(x=doy.2015, y = wue, color = region))+
-  xlab("Verasion 2015") +
+#wue at bb  
+ggplot()+ geom_point(data = v_bb, aes(x=doy.2015, y = mean_wue, color = variety))+
+  xlab("Budburst 2015") +
   ylab("Intrinsic Water Use Efficiency") +
-  ggtitle("Regional Water Use at Verasion")
+  ggtitle("Regional Water Use at Budburst")
+
+#wue at verasion 
+ggplot()+ geom_point(data = v_ver, aes(x=doy.2015, y = mean_wue, color = variety))+
+  xlab("Veraison 2015") +
+  ylab("Intrinsic Water Use Efficiency") +
+  ggtitle("Regional Water Use at Veraison")
 
 #wue at maturity using brix at 22
+ggplot()+ geom_point(data = v_ver, aes(x=doy.2015, y = mean_wue, color = variety))+
+  xlab("Veraison 2015") +
+  ylab("Intrinsic Water Use Efficiency") +
+  ggtitle("Regional Water Use at Veraison")
 
-ggplot()+ geom_point(data =__________, aes(x=doy.2015, y = wue, color = region))+
+
+ggplot()+ geom_point(data =v_mat, aes(x=doy.2015, y = mean_wue, color = variety))+
   xlab("Maturity 2015") +
   ylab("Intrinsic Water Use Efficiency") +
   ggtitle("Regional Water Use at Maturity")
-
 
 
 #aggregate before line plot

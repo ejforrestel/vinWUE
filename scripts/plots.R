@@ -3,7 +3,6 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 
-
 #PCA all traits
 
 pca.5 <- prcomp(vitis_var_means[,(2:6)], scale = T)

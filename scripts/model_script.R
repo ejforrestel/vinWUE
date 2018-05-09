@@ -1,9 +1,10 @@
+#script to try models
 library(tidyverse)
 library(ggplot2)
 library(MASS)
 
 vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv")
-vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv")
+#vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv")
 vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv")
 PhenoVarRMI <- read_csv("data/Phenodata/PhenoVarRMI.csv")
 
@@ -38,3 +39,5 @@ qplot(yhat, ei, data = vitis_var_means) +  ggtitle("Errors vs. Fitted Values") +
   ylab("Errors") + geom_hline(yintercept = 0,col = "purple")
 
 Group = rep("Lower",nrow(vitis_var_means))
+
+

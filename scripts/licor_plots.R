@@ -12,19 +12,21 @@ library(dplyr)
 
 #photosynthesis by variety by month
 
+#as a scatterplot
 ggplot() + geom_point (data = april_licor, aes(x=variety, y=(Photo), color=variety))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Variety") +
   ylab("Photosynthesis") +
   ggtitle("April Photosynthesis by Variety")
 
+#as a boxplot
 ggplot() + geom_boxplot(data = april_licor, aes(x=variety, y=(Photo), color=variety))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Variety") +
   ylab("Photosynthesis") +
   ggtitle("April Photosynthesis by Variety")
 
-#june
+#june 
 ggplot() + geom_point (data = june_licor, aes(x=variety, y=(Photo), color=variety)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Variety") +
@@ -51,5 +53,6 @@ ggplot(licor_2015, aes(x = variety, y = Photo, color = variety ))+
   geom_point()+
   facet_wrap("month")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 
 

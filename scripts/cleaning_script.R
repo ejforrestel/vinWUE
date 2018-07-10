@@ -4,9 +4,9 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 
-april_licor <- read_csv("data/april_licor.csv")
-june_licor <-read_csv("data/june_licor.csv")
-august_licor <- read_csv("data/august_licor.csv")
+april_licor <- read.csv("data/april_licor.csv")
+june_licor <-read.csv("data/june_licor.csv")
+august_licor <- read.csv("data/august_licor.csv")
 
 colnames(august_licor)[1:5]<- tolower(colnames(august_licor)[1:5])
 
@@ -35,11 +35,11 @@ licor_wue <- licor_2015 %>%
 
 #We need to clean the traits data before it can be used for the plots
 
-Pheno2015 <- read_csv("data/Phenodata/Pheno2015.csv") # just variety with event and DOY
+Pheno2015 <- read.csv("data/Phenodata/Pheno2015.csv") # just variety with event and DOY
 #PhenoVarRMI <- read_csv("data/Phenodata/PhenoVarRMI.csv") # variety with region and RMI dates and traits
 #vitis_ind_mean <- read_csv("data/viniferaTraitMeans/Vitis_ind_mean.csv") # traits by individual plant
 #vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv") # stomata traits by individual
-vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv") #important traits by month
+vitis_var_means <- read.csv("data/viniferaTraitMeans/Vitis_var_means.csv") #important traits by month
 
 #variety instead of varietal for merging
 vitis_var_means <- vitis_var_means %>% 
@@ -66,7 +66,7 @@ Pheno2015$variety <- gsub(pattern = "/", replacement = "_",Pheno2015$variety)
 
 #need a dataset that has the region for each of the varieties to add to dataframes later
 
-region <- read_csv("data/Phenodata/region.csv") 
+region <- read.csv("data/Phenodata/region.csv") 
 
 #vitis_region <- full_join(vitis_var_means, region, by = "variety") %>% 
 #  na.omit(T)
@@ -76,6 +76,13 @@ region <- read_csv("data/Phenodata/region.csv")
 
 Pheno2015 <- full_join(Pheno2015, region, by = "variety") %>% 
   na.omit(Pheno2015, TRUE)
+
+#flowering with traits
+flo_c13 <- full_join(vitis_flo, vitis_var_means, by = "variety") %>% 
+  na.omit(flo_c13, TRUE)
+
+ver_c13 <- full_join(vitis_ver, vitis_var_means, by = "variety") %>% 
+  na.omit(ver_c13, TRUE)
 
 vitis_flo <- Pheno2015 %>% 
   filter(event == "flo") #28 varieties
@@ -106,6 +113,9 @@ v_ver <- full_join(vitis_ver, wue_variety, by = "variety")
 
 #same for maturity
 v_mat <- full_join(vitis_mat, wue_variety, by = "variety") 
+
+#adding region to wue data
+licor_region <- full_join(licor_wue, region, by = "variety")
 
 
 

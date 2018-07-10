@@ -2,46 +2,40 @@
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+library(cluster)
 
-#PCA all traits
+#PCA all traits 
 
-pca.5 <- prcomp(vitis_var_means[,(2:6)], scale = T)
+pca.5 <- prcomp(vitis_var_means[,(2:8)], scale = T)
 biplot(pca.5)
 summary(pca.5)
 
+#add aesthetics
 
-#C13 by flowering - needto combine data first with traits and event before plotting
-ggplot(data = , aes(x = doy.2015, y = C13, color = region))+geom_point()
+df <- vitis_var_means[c(2,5,6,7,8)]
+autoplot(prcomp(df))
+#autoplot(prcomp(df), data = vitis_var_means, colour = 'region',  #error in graphics
+#         frame = TRUE, frame.type = 'norm')
 
-#C13 by veraison 
-ggplot(data = , aes(x = doy.2015, y = C13, color = region))+geom_point()
+#interested in regional PCA but can't get the points from variety with ellipses or coloring by region
+df.2 <- vitis_var_means[c(2,5,6,7,8)]
+autoplot(prcomp(df.2))
+#too few points to calculate an ellipse
+#autoplot(prcomp(df.2), data = vitis_var_means, colour = 'variety', 
+#         frame = TRUE, frame.type = 'norm')
 
+#there must be a way to do the PCA with the variety points and then use region 
+#to cluster
 
-#wue at bb by variety 
-ggplot()+ geom_point(data = , aes(x=doy.2015, y = wue, color = region))+
-  xlab("Budburst 2015") +
-  ylab("Intrinsic Water Use Efficiency") +
-  ggtitle("Regional Water Use at Budburst")
+autoplot(clara(vitis_var_means[c(2,5,6,7,8)], 8), 
+         frame.type = 'norm', frame = TRUE) #gives a graphic but "too few points to calculate an ellipse"
 
-#wue at flowering
+#clusters look a little distinct, but how do we dictate what the clusters are?
+autoplot(clara(vitis_var_means[c(2,5,6,7,8)], 8), 
+         frame.type = 'norm', frame = TRUE, frame.color = "variety") #gives a graphic but "too few points to calculate an ellipse"
 
-ggplot()+ geom_point(data = __________, aes(x=doy.2015, y = wue, color = region))+
-  xlab("Flowering 2015") +
-  ylab("Intrinsic Water Use Efficiency") +
-  ggtitle("Regional Water Use at Flowering")
+#rank order the traits by month 
 
-#wue at verasion 
-
-ggplot()+ geom_point(data = ___________, aes(x=doy.2015, y = wue, color = region))+
-  xlab("Verasion 2015") +
-  ylab("Intrinsic Water Use Efficiency") +
-  ggtitle("Regional Water Use at Verasion")
-
-#wue at maturity using brix at 22
-
-ggplot()+ geom_point(data = _________, aes(x=doy.2015, y = wue, color = region))+
-  xlab("Maturity 2015") +
-  ylab("Intrinsic Water Use Efficiency") +
-  ggtitle("Regional Water Use at Maturity")
-
+cor(v_wue$mean_photo, v_wue$mean_wue, method = c("spearman"))
+# gives -0.4169321
 

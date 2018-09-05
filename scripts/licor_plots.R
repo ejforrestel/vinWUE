@@ -54,5 +54,29 @@ ggplot(licor_2015, aes(x = variety, y = Photo, color = variety ))+
   facet_wrap("month")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+datam<- aggregate(data=mdata,value ~ Region*variable,FUN = mean)
+datasd<- aggregate(data=mdata,value ~ Region*variable,FUN = sd)
 
+#water potential data 
+datam$value <- datam$value*-1
+datam <- datam %>% !(datam$variable=="StemPotential4")
+datam2 = datam[datam$variable != 'StemPotential4',]
 
+ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
+  geom_errorbar(aes(ymin=value-sd, ymax=value+sd))+
+  geom_path(size = 1.5)+
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ylab("Water Potential Mpa") +
+  xlab("Leaf Potentials") +
+  ggtitle("Diurnal Leaf Potential, Mid-Day Stem Potential July 2018") +
+  scale_color_brewer(palette = "Paired")
+
+datastem <- datam[datam$variable == 'StemPotential4',]
+
+p + geom_point(data = datastem,mapping= aes(x=rep(4,11),y = value, color = Region))
+ 
+
+install.packages("RColorBrewer")           
+library(RColorBrewer)
+display.brewer.all()

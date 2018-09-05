@@ -3,10 +3,17 @@
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(reshape)
 
 april_licor <- read.csv("data/april_licor.csv")
 june_licor <-read.csv("data/june_licor.csv")
 august_licor <- read.csv("data/august_licor.csv")
+waterpotential_2018 <- read.csv("data/WaterPotentialsRMI18July2018.csv")
+
+#melt leaf potential data 
+
+mdata <- melt(waterpotential_2018, id=c("PlantID", "Variety","Region"))
+
 
 colnames(august_licor)[1:5]<- tolower(colnames(august_licor)[1:5])
 
@@ -19,6 +26,8 @@ august_licor<- august_licor %>%
 
 #filtering by the observations after 3 so that we remove the stabilization obs
 june_licor$row_plant <- gsub(pattern = "-", replacement = ".",june_licor$row_plant)
+
+
 
 june_licor<- june_licor %>% 
   select(-ID) %>% 

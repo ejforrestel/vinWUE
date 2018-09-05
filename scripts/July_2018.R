@@ -27,3 +27,11 @@ ggplot(water, aes(x = value, y = Region, color = variable)) +
   geom_point(aes(x = LeafPotential5, col = "LeafPotential5"))+
   geom_point(aes(x = LeafPotential6, col = "LeafPotential6"))+
   geom_point(aes(x = LeafPotential7, col = "LeafPotential7"))
+
+library(reshape2)
+
+melt_water <- melt(water, id.vars = c("Variety", "Region"), 
+     measure.vars = c("LeafPotential1", "LeafPotential2", "LeafPotential3", 
+                      "LeafPotential4", "LeafPotential5", "LeafPotential6", "LeafPotential7"))
+
+ggplot(melt_water, aes(x = variable, y = value, color = Region, group = Variety)) + geom_point() + theme(axis.text.x = element_text(angle = 90, hjust =1))

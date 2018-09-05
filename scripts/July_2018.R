@@ -19,7 +19,7 @@ ggplot(water, aes(Variety, y = value, color = variable)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 #still not right, I want to have the x axis be each of the time point and the y be the value
-ggplot(water, aes(x = value, y = Region, color = variable)) + 
+ggplot(melt_water, aes(x = value, y = Region, color = variable)) + 
   geom_point(aes(x = LeafPotential1, col = "LeafPotential1")) + 
   geom_point(aes(x = LeafPotential2, col = "LeafPotential2")) +
   geom_point(aes(x = LeafPotential3, col = "LeafPotential3"))+
@@ -34,4 +34,7 @@ melt_water <- melt(water, id.vars = c("Variety", "Region"),
      measure.vars = c("LeafPotential1", "LeafPotential2", "LeafPotential3", 
                       "LeafPotential4", "LeafPotential5", "LeafPotential6", "LeafPotential7"))
 
-ggplot(melt_water, aes(x = variable, y = value, color = Region, group = Variety)) + geom_point() + theme(axis.text.x = element_text(angle = 90, hjust =1))
+ggplot(melt_water, aes(x = variable, y = value, color =Variety, group = ID)) + geom_line() + theme(axis.text.x = element_text(angle = 90, hjust =1))
+head(melt_water)
+#take the mean of the two reps per variety, or group by ID 
+#make an error bar 

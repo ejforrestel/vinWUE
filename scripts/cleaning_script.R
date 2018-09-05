@@ -10,11 +10,11 @@ june_licor <-read.csv("data/june_licor.csv")
 august_licor <- read.csv("data/august_licor.csv")
 waterpotential_2018 <- read.csv("data/WaterPotentialsRMI18July2018.csv")
 
-#melt leaf potential data 
+#melt leaf potential data to give each value a leaf potential label
 
 mdata <- melt(waterpotential_2018, id=c("PlantID", "Variety","Region"))
 
-
+#rename august data columns
 colnames(august_licor)[1:5]<- tolower(colnames(august_licor)[1:5])
 
 #change column names before merge
@@ -26,8 +26,6 @@ august_licor<- august_licor %>%
 
 #filtering by the observations after 3 so that we remove the stabilization obs
 june_licor$row_plant <- gsub(pattern = "-", replacement = ".",june_licor$row_plant)
-
-
 
 june_licor<- june_licor %>% 
   select(-ID) %>% 

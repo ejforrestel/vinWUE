@@ -4,6 +4,8 @@
 #look for isohydric and anisohydric symdromes; double check some of trait values -- SLA is weird sometimes, 
 # not always issue with numeric conversion
 
+#need to add licor data that pairs with water potentials from july 2018
+
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -54,14 +56,19 @@ ggplot(licor_2015, aes(x = variety, y = Photo, color = variety ))+
   facet_wrap("month")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+
+#water potential data July 2018______________________________________________________
+# mdata is the melted data from the cleaning script, getting mean and sd for the line plot
 datam<- aggregate(data=mdata,value ~ Region*variable,FUN = mean)
 datasd<- aggregate(data=mdata,value ~ Region*variable,FUN = sd)
 
-#water potential data 
+#make the values negative to reflect water potential
 datam$value <- datam$value*-1
+#remove stem potential to add back to the graph later
 datam <- datam %>% !(datam$variable=="StemPotential4")
 datam2 = datam[datam$variable != 'StemPotential4',]
 
+#plot the mean data without the stem potentials, need to add sd to points
 ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
   geom_errorbar(aes(ymin=value-sd, ymax=value+sd))+
   geom_path(size = 1.5)+
@@ -72,11 +79,14 @@ ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
   ggtitle("Diurnal Leaf Potential, Mid-Day Stem Potential July 2018") +
   scale_color_brewer(palette = "Paired")
 
+#create new data set with just the stem potentials, as means
 datastem <- datam[datam$variable == 'StemPotential4',]
 
+#plot the stem onto the line plot
 p + geom_point(data = datastem,mapping= aes(x=rep(4,11),y = value, color = Region))
  
 
+#if you don't have this color palatte, the default for ggplot is not very distinct
 install.packages("RColorBrewer")           
 library(RColorBrewer)
 display.brewer.all()

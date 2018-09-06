@@ -69,8 +69,8 @@ datam <- datam %>% !(datam$variable=="StemPotential4")
 datam2 = datam[datam$variable != 'StemPotential4',]
 
 #plot the mean data without the stem potentials, need to add sd to points
-ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
-  geom_errorbar(aes(ymin=value-sd, ymax=value+sd))+
+p <-ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
+  #geom_errorbar(aes(ymin=value-sd, ymax=value+sd))+
   geom_path(size = 1.5)+
   geom_point()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+

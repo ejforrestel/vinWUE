@@ -9,36 +9,41 @@ april_licor <- read.csv("data/april_licor.csv")
 june_licor <-read.csv("data/june_licor.csv")
 august_licor <- read.csv("data/august_licor.csv")
 waterpotential_2018 <- read.csv("data/WaterPotentialsRMI18July2018.csv")
+licor_wue <- read.csv("data/licor_wue.csv")
 
 #melt leaf potential data to give each value a leaf potential label
 
 mdata <- melt(waterpotential_2018, id=c("PlantID", "Variety","Region"))
 
-#rename august data columns
-colnames(august_licor)[1:5]<- tolower(colnames(august_licor)[1:5])
+#### creating full data set licor_wue ##################################
+#rename august data columns 
+# colnames(august_licor)[1:5]<- tolower(colnames(august_licor)[1:5])
+# 
+# #change column names before merge
+# colnames(april_licor)[colnames(april_licor)=="ï..year"] <- "year"
+# april_licor <- april_licor[which(april_licor$Obs%in%3:16),]
+# 
+# august_licor<- august_licor %>% 
+#   filter(Obs %in% 3:16)
+# 
+# #filtering by the observations after 3 so that we remove the stabilization obs
+# june_licor$row_plant <- gsub(pattern = "-", replacement = ".",june_licor$row_plant)
+# june_licor$ï..ID <- NULL
+# june_licor<- june_licor %>% 
+#   filter(Obs %in% 3:16)
+# 
+# august_licor$row_plant <- as.character(august_licor$row_plant)
+# 
+# licor_2015 <- rbind(april_licor, june_licor, august_licor) 
+# 
+# licor_wue <- licor_2015 %>% 
+#   mutate(wue = (Photo/Cond)) %>% 
+#   select_("month", "day", "row_plant", "variety", "Photo", "Cond", "wue")
+# 
+# write.csv(licor_wue, file = "data/licor_wue.csv", row.names = FALSE)
+# this dataset is now in the data folder to continue to work on 
+###################################################################
 
-#change column names before merge
-
-april_licor <- april_licor[which(april_licor$Obs%in%3:16),]
-
-august_licor<- august_licor %>% 
-  filter(Obs %in% 3:16)
-
-#filtering by the observations after 3 so that we remove the stabilization obs
-june_licor$row_plant <- gsub(pattern = "-", replacement = ".",june_licor$row_plant)
-
-june_licor<- june_licor %>% 
-  select(-ID) %>% 
-  filter(Obs %in% 3:16)
-
-august_licor$row_plant <- as.character(august_licor$row_plant)
-
-licor_2015 <- bind_rows(april_licor, june_licor, august_licor) %>% 
-  as.data.frame()
-
-licor_wue <- licor_2015 %>% 
-  mutate(wue = (Photo/Cond)) %>% 
-  select(month, day, row_plant, variety, Photo, Cond, wue)
 
 #We need to clean the traits data before it can be used for the plots
 
@@ -49,10 +54,9 @@ Pheno2015 <- read.csv("data/Phenodata/Pheno2015.csv") # just variety with event 
 vitis_var_means <- read.csv("data/viniferaTraitMeans/Vitis_var_means.csv") #important traits by month
 
 #variety instead of varietal for merging
-vitis_var_means <- vitis_var_means %>% 
-  rename(variety = Varietal) 
+colnames(vitis_var_means)[colnames(vitis_var_means)=="Varietal"] <- "variety"
   
-vitis_var_means$variety <- gsub(pattern = "/", replacement = "_",vitis_var_means$variety)
+vitis_var_means$variety <- gsub(pattern = " ", replacement = "_",vitis_var_means$variety)
 
 #creating a subset dataframe that averages photosynthesis and
 #water use efficiency by variety for each month
@@ -85,11 +89,6 @@ Pheno2015 <- full_join(Pheno2015, region, by = "variety") %>%
   na.omit(Pheno2015, TRUE)
 
 #flowering with traits
-flo_c13 <- full_join(vitis_flo, vitis_var_means, by = "variety") %>% 
-  na.omit(flo_c13, TRUE)
-
-ver_c13 <- full_join(vitis_ver, vitis_var_means, by = "variety") %>% 
-  na.omit(ver_c13, TRUE)
 
 vitis_flo <- Pheno2015 %>% 
   filter(event == "flo") #28 varieties
@@ -102,6 +101,12 @@ vitis_bb <- Pheno2015 %>%
 
 vitis_mat <- Pheno2015 %>% 
   filter(event=="brix22") #28 varieties
+
+flo_c13 <- full_join(vitis_flo, vitis_var_means, by = "variety") %>% 
+  na.omit(flo_c13, TRUE)
+
+ver_c13 <- full_join(vitis_ver, vitis_var_means, by = "variety") %>% 
+  na.omit(ver_c13, TRUE)
 
 #preparing water use data for merge
 wue_variety <- licor_wue %>% 

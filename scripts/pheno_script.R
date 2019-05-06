@@ -53,7 +53,6 @@ ggplot()+ geom_point(data =v_mat, aes(x=doy.2015, y = mean_wue, color = variety)
   ggtitle("Regional Water Use at Maturity")
 
 
-#aggregate before line plot
 
 
 

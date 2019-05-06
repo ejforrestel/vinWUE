@@ -51,25 +51,40 @@ licor_2015 %>%
   ylab("Photosynthesis") +
   ggtitle("Figure 1. Test")
 
-ggplot(licor_2015, aes(x = variety, y = Photo, color = variety ))+
+#select a few varieties to highlight in a plot 
+
+full.sum <- summarySE(licor_2015, measurevar = "Photo", groupvars = c( "variety", "month"), na.rm = T)
+unique(full.sum$variety)
+full.sum$variety <- factor(full.sum$variety, levels =  c("Chardonnay","Carignane", "Palomino","Szagos_feher", "Gewurztraminer","Dolcetto", "Syrah", "Nebbiolo" ))
+full.sum <- full.sum %>% 
+  na.omit()
+
+
+ggplot(full.sum, aes(x = variety, y = Photo, color = variety ))+
   geom_point()+
+  xlab("")+
+  ylab(bquote('Photosynthesis ('*mu~ 'mol' ~CO[2]~ m^-2~s^-1*')'))+
+  geom_errorbar(aes(ymin = Photo - se, ymax = Photo + se), width = 0.2) +
   facet_wrap("month")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 #water potential data July 2018______________________________________________________
 # mdata is the melted data from the cleaning script, getting mean and sd for the line plot
-datam<- aggregate(data=mdata,value ~ Region*variable,FUN = mean)
-datasd<- aggregate(data=mdata,value ~ Region*variable,FUN = sd)
+datam<- aggregate(data=mdata,value ~ Variety*variable,FUN = mean)
+datasd<- aggregate(data=mdata,value ~ Variety*variable,FUN = sd)
 
 #make the values negative to reflect water potential
 datam$value <- datam$value*-1
+
 #remove stem potential to add back to the graph later
-datam <- datam %>% !(datam$variable=="StemPotential4")
+dataWP <- datam %>% !(datam$variable=="StemPotential4")
 datam2 = datam[datam$variable != 'StemPotential4',]
 
+
+
 #plot the mean data without the stem potentials, need to add sd to points
-p <-ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
+p <-ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Variety)) +
   #geom_errorbar(aes(ymin=value-sd, ymax=value+sd))+
   geom_path(size = 1.5)+
   geom_point()+
@@ -78,6 +93,7 @@ p <-ggplot(datam2, aes(x= as.numeric(variable), y = value, color = Region)) +
   xlab("Leaf Potentials") +
   ggtitle("Diurnal Leaf Potential, Mid-Day Stem Potential July 2018") +
   scale_color_brewer(palette = "Paired")
+p
 
 #create new data set with just the stem potentials, as means
 datastem <- datam[datam$variable == 'StemPotential4',]

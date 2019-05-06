@@ -4,7 +4,6 @@ library(ggplot2)
 library(MASS)
 
 vitis_var_means <- read_csv("data/viniferaTraitMeans/Vitis_var_means.csv")
-#vitis_mean <- read_csv("data/viniferaTraitMeans/Vitis_mean.csv")
 vitis_trait <- read_csv("data/viniferaTraitMeans/Vitis_trait_data.csv")
 PhenoVarRMI <- read_csv("data/Phenodata/PhenoVarRMI.csv")
 
